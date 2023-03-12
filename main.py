@@ -16,6 +16,10 @@ class Instructor:
         if args.model_name == 'bert':
             self.tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
             base_model = AutoModel.from_pretrained('bert-base-uncased')
+        # 加个 bert 中文模型
+        elif args.model_name == 'bert-zh':
+            self.tokenizer = AutoTokenizer.from_pretrained('bert-base-chinese')
+            base_model = AutoModel.from_pretrained('bert-base-chinese')
         elif args.model_name == 'roberta':
             self.tokenizer = AutoTokenizer.from_pretrained('roberta-base', add_prefix_space=True)
             base_model = AutoModel.from_pretrained('roberta-base')
@@ -63,6 +67,9 @@ class Instructor:
         return test_loss / n_test, n_correct / n_test
 
     def run(self):
+        """
+        入口点是这里
+        """
         train_dataloader, test_dataloader = load_data(dataset=self.args.dataset,
                                                       data_dir=self.args.data_dir,
                                                       tokenizer=self.tokenizer,
@@ -71,12 +78,14 @@ class Instructor:
                                                       model_name=self.args.model_name,
                                                       method=self.args.method,
                                                       workers=0)
+        # 仅训练需要梯度的参数
         _params = filter(lambda p: p.requires_grad, self.model.parameters())
         if self.args.method == 'ce':
             criterion = CELoss()
         elif self.args.method == 'scl':
             criterion = SupConLoss(self.args.alpha, self.args.temp)
         elif self.args.method == 'dualcl':
+            # 主要在这里实现了新的损失函数
             criterion = DualLoss(self.args.alpha, self.args.temp)
         else:
             raise ValueError('unknown method')

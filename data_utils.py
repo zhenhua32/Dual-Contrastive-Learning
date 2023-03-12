@@ -12,7 +12,8 @@ class MyDataset(Dataset):
         sep_token = ['[SEP]'] if model_name == 'bert' else ['</s>']
         dataset = list()
         for data in raw_data:
-            tokens = data['text'].lower().split(' ')
+            # tokens = data['text'].lower().split(' ')
+            tokens = list(data['text'].lower())
             label_id = label_dict[data['label']]
             dataset.append((label_list + sep_token + tokens, label_id))
         self._dataset = dataset
@@ -61,6 +62,10 @@ def load_data(dataset, data_dir, tokenizer, train_batch_size, test_batch_size, m
         train_data = json.load(open(os.path.join(data_dir, 'procon_Train.json'), 'r', encoding='utf-8'))
         test_data = json.load(open(os.path.join(data_dir, 'procon_Test.json'), 'r', encoding='utf-8'))
         label_dict = {'positive': 0, 'negative': 1}
+    elif dataset == 'tnews':
+        train_data = json.load(open(os.path.join(data_dir, 'tnews_Train.json'), 'r', encoding='utf-8'))
+        test_data = json.load(open(os.path.join(data_dir, 'tnews_Dev.json'), 'r', encoding='utf-8'))
+        label_dict = json.load(open(os.path.join(data_dir, 'tnews_Label.json'), 'r', encoding='utf-8'))
     else:
         raise ValueError('unknown dataset')
     trainset = MyDataset(train_data, label_dict, tokenizer, model_name, method)

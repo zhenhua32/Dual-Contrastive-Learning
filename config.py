@@ -10,14 +10,14 @@ from datetime import datetime
 
 def get_config():
     parser = argparse.ArgumentParser()
-    num_classes = {'sst2': 2, 'subj': 2, 'trec': 6, 'pc': 2, 'cr': 2}
+    num_classes = {'sst2': 2, 'subj': 2, 'trec': 6, 'pc': 2, 'cr': 2, "tnews": 15}
     ''' Base '''
     parser.add_argument('--data_dir', type=str, default='data')
     parser.add_argument('--dataset', type=str, default='sst2', choices=num_classes.keys())
-    parser.add_argument('--model_name', type=str, default='bert', choices=['bert', 'roberta'])
+    parser.add_argument('--model_name', type=str, default='bert', choices=['bert', 'roberta', 'bert-zh'])
     parser.add_argument('--method', type=str, default='dualcl', choices=['ce', 'scl', 'dualcl'])
     ''' Optimization '''
-    parser.add_argument('--train_batch_size', type=int, default=16)
+    parser.add_argument('--train_batch_size', type=int, default=64)
     parser.add_argument('--test_batch_size', type=int, default=64)
     parser.add_argument('--num_epoch', type=int, default=100)
     parser.add_argument('--lr', type=float, default=1e-5)

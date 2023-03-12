@@ -49,6 +49,8 @@ pip install -r requirements.txt
 
 ```sh
 python main.py --method dualcl
+
+python main.py --method dualcl --dataset tnews --model_name bert-zh --num_epoch 5
 ```
 
 ## Citation
