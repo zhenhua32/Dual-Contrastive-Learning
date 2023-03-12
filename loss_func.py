@@ -55,7 +55,9 @@ class SupConLoss(nn.Module):
 
 
 class DualLoss(SupConLoss):
-
+    """
+    其他都不是重点, 只能看看损失函数怎么实现的了
+    """
     def __init__(self, alpha, temp):
         super().__init__(alpha, temp)
 

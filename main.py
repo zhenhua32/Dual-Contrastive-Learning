@@ -37,11 +37,16 @@ class Instructor:
             self.logger.info(f">>> {arg}: {getattr(self.args, arg)}")
 
     def _train(self, dataloader, criterion, optimizer):
+        """
+        看起来训练过程很普通, 没有什么特别的地方
+        """
         train_loss, n_correct, n_train = 0, 0, 0
         self.model.train()
         for inputs, targets in tqdm(dataloader, disable=self.args.backend, ascii=' >='):
+            # 转到 GPU 上
             inputs = {k: v.to(self.args.device) for k, v in inputs.items()}
             targets = targets.to(self.args.device)
+            # 模型输出
             outputs = self.model(inputs)
             loss = criterion(outputs, targets)
             optimizer.zero_grad()
@@ -49,10 +54,14 @@ class Instructor:
             optimizer.step()
             train_loss += loss.item() * targets.size(0)
             n_correct += (torch.argmax(outputs['predicts'], -1) == targets).sum().item()
+            # 计算总的训练样本数
             n_train += targets.size(0)
         return train_loss / n_train, n_correct / n_train
 
     def _test(self, dataloader, criterion):
+        """
+        测试的过程也是相似的
+        """
         test_loss, n_correct, n_test = 0, 0, 0
         self.model.eval()
         with torch.no_grad():

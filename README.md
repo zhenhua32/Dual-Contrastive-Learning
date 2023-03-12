@@ -1,3 +1,9 @@
+# 文档
+
+太坑了, 没法用在中文数据集上.
+
+[文本分类还停留在BERT？对偶对比学习框架也太强了](https://zhuanlan.zhihu.com/p/466685216?utm_id=0)
+
 # Dual-Contrastive-Learning
  
 ![GitHub](https://img.shields.io/github/license/hiyouga/dual-contrastive-learning)

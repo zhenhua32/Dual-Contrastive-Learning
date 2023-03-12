@@ -6,15 +6,20 @@ from torch.utils.data import Dataset, DataLoader
 
 
 class MyDataset(Dataset):
-
+    """
+    数据集好怪, 主要是没看懂构造新行的方式
+    """
     def __init__(self, raw_data, label_dict, tokenizer, model_name, method):
+        # 当 method 是 ce 或 scl 时，label_list 为空，否则为 label_dict 的 key
         label_list = list(label_dict.keys()) if method not in ['ce', 'scl'] else []
+        # 分隔符
         sep_token = ['[SEP]'] if model_name == 'bert' else ['</s>']
         dataset = list()
         for data in raw_data:
             # tokens = data['text'].lower().split(' ')
             tokens = list(data['text'].lower())
             label_id = label_dict[data['label']]
+            # 新的文本是 所有的标签 + 分隔符 + 原始的 tokens, 类型是 list
             dataset.append((label_list + sep_token + tokens, label_id))
         self._dataset = dataset
 
@@ -26,7 +31,11 @@ class MyDataset(Dataset):
 
 
 def my_collate(batch, tokenizer, method, num_classes):
+    """
+    主要的数据转换函数
+    """
     tokens, label_ids = map(list, zip(*batch))
+    # 只是填充成当前批次最大的长度, 不会填充成 max_length
     text_ids = tokenizer(tokens,
                          padding=True,
                          truncation=True,
@@ -35,6 +44,8 @@ def my_collate(batch, tokenizer, method, num_classes):
                          add_special_tokens=True,
                          return_tensors='pt')
     if method not in ['ce', 'scl']:
+        # 就这里 https://github.com/hiyouga/Dual-Contrastive-Learning/issues/9
+        # 调整了 position_ids 的值, 将前面部分, 也就是插入的 label_list 部分, 全部设置为 0, 相当于第一个位置
         positions = torch.zeros_like(text_ids['input_ids'])
         positions[:, num_classes:] = torch.arange(0, text_ids['input_ids'].size(1)-num_classes)
         text_ids['position_ids'] = positions
@@ -63,6 +74,7 @@ def load_data(dataset, data_dir, tokenizer, train_batch_size, test_batch_size, m
         test_data = json.load(open(os.path.join(data_dir, 'procon_Test.json'), 'r', encoding='utf-8'))
         label_dict = {'positive': 0, 'negative': 1}
     elif dataset == 'tnews':
+        # 新加的, 中文新闻分类数据集
         train_data = json.load(open(os.path.join(data_dir, 'tnews_Train.json'), 'r', encoding='utf-8'))
         test_data = json.load(open(os.path.join(data_dir, 'tnews_Dev.json'), 'r', encoding='utf-8'))
         label_dict = json.load(open(os.path.join(data_dir, 'tnews_Label.json'), 'r', encoding='utf-8'))
