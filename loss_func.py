@@ -4,17 +4,21 @@ import torch.nn.functional as F
 
 
 class CELoss(nn.Module):
-
+    """
+    这个就没什么好说的了, 只是适配了一下 outputs 的格式, outputs 是个 dict
+    """
     def __init__(self):
         super().__init__()
         self.xent_loss = nn.CrossEntropyLoss()
 
-    def forward(self, outputs, targets):
+    def forward(self, outputs: dict, targets):
         return self.xent_loss(outputs['predicts'], targets)
 
 
 class SupConLoss(nn.Module):
-
+    """
+    要先看这个, DualLoss 继承了这个类
+    """
     def __init__(self, alpha, temp):
         super().__init__()
         self.xent_loss = nn.CrossEntropyLoss()
